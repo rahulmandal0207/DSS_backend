@@ -4,8 +4,12 @@ import cv2 as cv
 from flask import Flask, Response, render_template
 from flask_cors import CORS
 
+from src.Fatigue_detection.FatigueDetection import FatigueDetection
+
 app = Flask(__name__)
 CORS(app)
+
+fd = FatigueDetection()
 
 cap = cv.VideoCapture(0)
 # cap = cv.VideoCapture("resources/SampleVideo_640x360_5mb.mp4")
@@ -41,11 +45,15 @@ def generate_frames(processing_function):
 
     cap.release()
 
-
 def original_frame(frame):
     return frame
 
-
+@app.route("/video_feed/yawn")
+def video_feed_yawn():
+    return  Response(
+        generate_frames(fd.process_frame),
+        mimetype = "multipart/x-mixed-replace; boundary=frame"
+    )
 
 @app.route("/video_feed/original")
 def video_feed_original():

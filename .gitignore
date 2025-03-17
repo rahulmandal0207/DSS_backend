@@ -240,5 +240,7 @@ ipython_config.py
 # Remove previous ipynb_checkpoints
 #   git rm -r .ipynb_checkpoints/
 
+resources
+resources/
 
 # End of https://mrkandreev.name/snippets/gitignore-generator/#Python,PyCharm,VirtualEnv,JupyterNotebooks,pytorch

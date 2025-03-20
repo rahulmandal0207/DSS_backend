@@ -1,26 +1,20 @@
 
 import cv2 as cv
 
+from src.Fatigue_detection.submodules.EyeClosureDetection import EyeClosureDetection
 from src.Fatigue_detection.submodules.YawnDetection import YawnDetection
 
 
 class FatigueDetection:
     def __init__(self):
         self.yawn_detection = YawnDetection()
+        self.eye_closure_detection = EyeClosureDetection()
 
 
     def process_frame(self, frame):
-        return self.yawn_detection.process_frame(frame)
-
-    # def facial_expression_analysis(self):
-    #     pass
-    #
-    # def eye_blink_detection(self):
-    #     pass
-    #
-    # def head_pose_estimation(self):
-    #     pass
-
+        yawn = self.yawn_detection.process_frame(frame.copy())
+        eye = self.eye_closure_detection.process_frame(frame.copy())
+        return yawn, eye
 
 
 if __name__ == '__main__':
@@ -35,9 +29,10 @@ if __name__ == '__main__':
 
         frame = cv.flip(frame,1)
 
-        output_frame = fd.process_frame(frame)
+        yawn_frame, eye_closure_frame = fd.process_frame(frame)
 
-        cv.imshow("Yawn detector", output_frame)
+        cv.imshow("Yawn detector", yawn_frame)
+        cv.imshow("Eye closure detector", eye_closure_frame)
 
         if cv.waitKey(1) & 0xff == ord('q'):
             break

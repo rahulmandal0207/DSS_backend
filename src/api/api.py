@@ -4,12 +4,15 @@ import cv2 as cv
 from flask import Flask, Response, render_template
 from flask_cors import CORS
 
-from src.Fatigue_detection.FatigueDetection import FatigueDetection
+from src.Fatigue_detection.submodules.EyeClosureDetection import EyeClosureDetection
+from src.Fatigue_detection.submodules.YawnDetection import YawnDetection
 
 app = Flask(__name__)
 CORS(app)
 
-fd = FatigueDetection()
+ec = EyeClosureDetection()
+yd = YawnDetection()
+
 
 cap = cv.VideoCapture(0)
 # cap = cv.VideoCapture("resources/SampleVideo_640x360_5mb.mp4")
@@ -25,14 +28,11 @@ def generate_frames(processing_function):
 
         if not success:
             print("Failed to read the frame")
-            break;
+            break
 
         frame = cv.flip(frame, 1)
-
-        processed_frame = processing_function(frame)
-
+        processed_frame = processing_function(frame.copy())
         _,buffer = cv.imencode(".jpg", processed_frame)
-
         frame_bytes = buffer.tobytes()
 
         yield (
@@ -51,9 +51,17 @@ def original_frame(frame):
 @app.route("/video_feed/yawn")
 def video_feed_yawn():
     return  Response(
-        generate_frames(fd.process_frame),
+        generate_frames(yd.process_frame),
         mimetype = "multipart/x-mixed-replace; boundary=frame"
     )
+
+@app.route("/video_feed/eye_closure")
+def video_feed_eye_closure():
+    return  Response(
+        generate_frames(ec.process_frame),
+        mimetype = "multipart/x-mixed-replace; boundary=frame"
+    )
+
 
 @app.route("/video_feed/original")
 def video_feed_original():

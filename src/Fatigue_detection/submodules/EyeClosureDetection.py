@@ -3,7 +3,7 @@ import mediapipe.python.solutions as mp
 import numpy as np
 
 class EyeClosureDetection:
-    def __init__(self, eye_closure_threshold=.25):
+    def __init__(self, eye_closure_threshold=0.25):
         self.mp_face_mesh = mp.face_mesh
         self.mp_face = self.mp_face_mesh.FaceMesh(
             max_num_faces=1,
@@ -58,7 +58,10 @@ class EyeClosureDetection:
                 left_eye_ear = self.__eye_aspect_ratio(left_eye)
                 right_eye_ear = self.__eye_aspect_ratio(right_eye)
 
-                if left_eye_ear < self.EYE_CLOSURE_THRESHOLD or right_eye_ear < self.EYE_CLOSURE_THRESHOLD:
+                left_eye_closed = left_eye_ear < self.EYE_CLOSURE_THRESHOLD
+                right_eye_closed = right_eye_ear < self.EYE_CLOSURE_THRESHOLD
+
+                if left_eye_closed or right_eye_closed:
                     return True, face_landmarks
 
         return False, None

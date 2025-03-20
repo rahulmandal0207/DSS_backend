@@ -1,11 +1,10 @@
 
-
 import mediapipe.python.solutions as mp
 import cv2 as cv
 import numpy as np
 
 class YawnDetection:
-    def __init__(self):
+    def __init__(self, yawn_threshold=0.9):
         self.mp_face_mesh = mp.face_mesh
         self.face_mesh = self.mp_face_mesh.FaceMesh(
             max_num_faces=1,
@@ -16,7 +15,7 @@ class YawnDetection:
 
         self.mp_drawing = mp.drawing_utils
         self.mp_drawing_style = mp.drawing_styles
-        self.YAWN_THRESHOLD = 0.9
+        self.YAWN_THRESHOLD = yawn_threshold
 
 
     def __mouth_aspect_ratio(self, mouth):
@@ -31,48 +30,47 @@ class YawnDetection:
         mar = A / B
         return mar
 
+    def detect_yawn(self, frame_yawn):
 
-    def detect_yawn(self, frame):
-        rgb_frame = cv.cvtColor(frame,cv.COLOR_BGR2RGB)
+        rgb_frame = cv.cvtColor(frame_yawn, cv.COLOR_BGR2RGB)
+
         results = self.face_mesh.process(rgb_frame)
+
         if results.multi_face_landmarks:
+
             for face_landmark in results.multi_face_landmarks:
+
                 mouth_points = [
                     face_landmark.landmark[61],
                     face_landmark.landmark[291],
                     face_landmark.landmark[0],
                     face_landmark.landmark[17],
                 ]
+
                 mar = self.__mouth_aspect_ratio(mouth_points)
-                print(mar)
                 if mar < self.YAWN_THRESHOLD:
                     return True, face_landmark
         return False, None
 
-    def  draw_landmarks(self, frame, landmarks):
-        self.mp_drawing.draw_landmarks(
-            image=frame,
-            landmark_list=landmarks,
-            connections=self.mp_face_mesh.FACEMESH_CONTOURS,
-            landmark_drawing_spec=None,
-            connection_drawing_spec=self.mp_drawing_style.get_default_face_mesh_contours_style()
-        )
-        # for idx in [61, 291, 0, 17]:
-        #     landmark = landmarks.landmark[idx]
-        #     x = int(landmark.x * frame.shape[1])
-        #     y = int(landmark.y * frame.shape[0])
-        #     cv.putText(frame, str(idx), (x, y), cv.FONT_HERSHEY_SIMPLEX, .3,(0, 0, 255), 1)  # Draw a red circle on the landmark
+    def  draw_landmarks(self, frame_yawn, landmarks):
+        for idx in [61, 185, 40, 39, 37, 0, 267, 269, 270, 409, 291,146, 91, 181, 84, 17, 314, 405, 321, 375, 291]:
+            landmark = landmarks.landmark[idx]
+            x = int(landmark.x * frame_yawn.shape[1])
+            y = int(landmark.y * frame_yawn.shape[0])
+            # cv.putText(frame, str(idx), (x, y), cv.FONT_HERSHEY_SIMPLEX, .3,(0, 0, 255), 1)  # Draw a red circle on the landmark
+            cv.circle(frame_yawn, (x, y), 2, (0, 0, 255), -1)
 
-    def process_frame(self, frame):
-        yawn, landmarks = self.detect_yawn(frame)
+
+    def process_frame(self, frame_yawn):
+        yawn, landmarks = self.detect_yawn(frame_yawn)
 
         if yawn:
-            cv.putText(frame, "Yawing Detected!", (10, 30), cv.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-            self.draw_landmarks(frame, landmarks)
+            cv.putText(frame_yawn, "Yawing Detected!", (10, 30), cv.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+            self.draw_landmarks(frame_yawn, landmarks)
         else:
-            cv.putText(frame, "No Yawn!", (10, 30), cv.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+            cv.putText(frame_yawn, "No Yawn!", (10, 30), cv.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
-        return frame
+        return frame_yawn
 
 
 if __name__ == '__main__':

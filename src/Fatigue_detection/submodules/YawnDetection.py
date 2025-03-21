@@ -1,20 +1,11 @@
 
-import mediapipe.python.solutions as mp
+from mediapipe.python import solutions
 import cv2 as cv
 import numpy as np
 
 class YawnDetection:
     def __init__(self, yawn_threshold=0.9):
-        self.mp_face_mesh = mp.face_mesh
-        self.face_mesh = self.mp_face_mesh.FaceMesh(
-            max_num_faces=1,
-            refine_landmarks=True,
-            min_detection_confidence=0.5,
-            min_tracking_confidence=0.5
-        )
 
-        self.mp_drawing = mp.drawing_utils
-        self.mp_drawing_style = mp.drawing_styles
         self.YAWN_THRESHOLD = yawn_threshold
 
 
@@ -30,50 +21,46 @@ class YawnDetection:
         mar = A / B
         return mar
 
-    def detect_yawn(self, frame_yawn):
+    def detect_yawn(self, face_landmarks):
 
-        rgb_frame = cv.cvtColor(frame_yawn, cv.COLOR_BGR2RGB)
-
-        results = self.face_mesh.process(rgb_frame)
-
-        if results.multi_face_landmarks:
-
-            for face_landmark in results.multi_face_landmarks:
-
-                mouth_points = [
-                    face_landmark.landmark[61],
-                    face_landmark.landmark[291],
-                    face_landmark.landmark[0],
-                    face_landmark.landmark[17],
-                ]
-
-                mar = self.__mouth_aspect_ratio(mouth_points)
-                if mar < self.YAWN_THRESHOLD:
-                    return True, face_landmark
+        mouth_points = [
+            face_landmarks.landmark[61],
+            face_landmarks.landmark[291],
+            face_landmarks.landmark[0],
+            face_landmarks.landmark[17],
+        ]
+        mar = self.__mouth_aspect_ratio(mouth_points)
+        if mar < self.YAWN_THRESHOLD:
+            return True, face_landmarks
         return False, None
 
-    def  draw_landmarks(self, frame_yawn, landmarks):
-        for idx in [61, 185, 40, 39, 37, 0, 267, 269, 270, 409, 291,146, 91, 181, 84, 17, 314, 405, 321, 375, 291]:
+    def  draw_landmarks(self, frame, landmarks):
+        lips_points = [61, 185, 40, 39, 37, 0, 267, 269, 270, 409, 291,146, 91, 181, 84, 17, 314, 405, 321, 375, 291]
+        for idx in lips_points:
             landmark = landmarks.landmark[idx]
-            x = int(landmark.x * frame_yawn.shape[1])
-            y = int(landmark.y * frame_yawn.shape[0])
+            x = int(landmark.x * frame.shape[1])
+            y = int(landmark.y * frame.shape[0])
             # cv.putText(frame, str(idx), (x, y), cv.FONT_HERSHEY_SIMPLEX, .3,(0, 0, 255), 1)  # Draw a red circle on the landmark
-            cv.circle(frame_yawn, (x, y), 2, (0, 0, 255), -1)
+            cv.circle(frame, (x, y), 2, (0, 0, 255), -1)
 
-
-    def process_frame(self, frame_yawn):
-        yawn, landmarks = self.detect_yawn(frame_yawn)
-
+    def process_frame(self, frame, face_landmarks):
+        yawn, landmarks = self.detect_yawn(face_landmarks)
         if yawn:
-            cv.putText(frame_yawn, "Yawing Detected!", (10, 30), cv.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-            self.draw_landmarks(frame_yawn, landmarks)
+            cv.putText(frame, "Yawing Detected!", (10, 30), cv.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
+            self.draw_landmarks(frame, landmarks)
         else:
-            cv.putText(frame_yawn, "No Yawn!", (10, 30), cv.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+            cv.putText(frame, "No Yawn!", (10, 30), cv.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
-        return frame_yawn
+        return frame
 
 
 if __name__ == '__main__':
+
+    mp_face_mesh = solutions.face_mesh
+    mp_face = mp_face_mesh.FaceMesh(
+        max_num_faces=1,
+        refine_landmarks=True
+    )
 
     yd = YawnDetection()
     cap = cv.VideoCapture(0)
@@ -85,8 +72,13 @@ if __name__ == '__main__':
             exit()
 
         frame = cv.flip(frame,1)
+        rgb_frame = cv.cvtColor(frame, cv.COLOR_BGR2RGB)
 
-        output_frame = yd.process_frame(frame)
+        results = mp_face.process(rgb_frame)
+
+        if results.multi_face_landmarks:
+            for face_landmarks in results.multi_face_landmarks:
+                output_frame = yd.process_frame(frame, face_landmarks)
 
         cv.imshow("Frame",output_frame)
 

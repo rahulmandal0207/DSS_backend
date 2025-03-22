@@ -31,27 +31,32 @@ class YawnDetection:
         ]
         mar = self.__mouth_aspect_ratio(mouth_points)
         if mar < self.YAWN_THRESHOLD:
-            return True, face_landmarks
-        return False, None
+            return True, face_landmarks, mar
+        return False, face_landmarks, None
 
-    def  draw_landmarks(self, frame, landmarks):
+    def  draw_landmarks(self, frame,is_yawn, landmarks):
         lips_points = [61, 185, 40, 39, 37, 0, 267, 269, 270, 409, 291,146, 91, 181, 84, 17, 314, 405, 321, 375, 291]
         for idx in lips_points:
             landmark = landmarks.landmark[idx]
             x = int(landmark.x * frame.shape[1])
             y = int(landmark.y * frame.shape[0])
             # cv.putText(frame, str(idx), (x, y), cv.FONT_HERSHEY_SIMPLEX, .3,(0, 0, 255), 1)  # Draw a red circle on the landmark
-            cv.circle(frame, (x, y), 2, (0, 0, 255), -1)
+            if is_yawn:
+                cv.circle(frame, (x, y), 2, (0, 0, 255), -1)
+            else:
+                cv.circle(frame, (x, y), 2, (0, 255, 0), -1)
 
     def process_frame(self, frame, face_landmarks):
-        yawn, landmarks = self.detect_yawn(face_landmarks)
-        if yawn:
+        is_yawn, landmarks, mar = self.detect_yawn(face_landmarks)
+        if is_yawn:
             cv.putText(frame, "Yawing Detected!", (10, 30), cv.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-            self.draw_landmarks(frame, landmarks)
+            self.draw_landmarks(frame, is_yawn, landmarks)
         else:
             cv.putText(frame, "No Yawn!", (10, 30), cv.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+            self.draw_landmarks(frame, is_yawn,landmarks)
 
-        return frame
+
+        return frame, mar
 
 
 if __name__ == '__main__':

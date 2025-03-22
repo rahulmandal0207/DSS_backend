@@ -16,14 +16,6 @@ class EyeClosureDetection:
         ear = (A + B) / (2.0 * C)
         return ear
 
-    def draw_landmark(self, frame, landmarks):
-        both_eye_points = [33,160,158,133,153,144,362,385,387,263,373,380]
-        for idx in both_eye_points:
-            landmark = landmarks.landmark[idx]
-            x = int(landmark.x * frame.shape[1])
-            y = int(landmark.y * frame.shape[0])
-            # cv.putText(frame, str(idx), (x,y), cv.FONT_HERSHEY_SIMPLEX, .3,(0,255,0),1)
-            cv.circle(frame,(x,y),2,(0,0,255),-1)
 
     def detect_eye_closure(self, face_landmarks):
 
@@ -52,20 +44,34 @@ class EyeClosureDetection:
         right_eye_closed = right_eye_ear < self.EYE_CLOSURE_THRESHOLD
 
         if left_eye_closed or right_eye_closed:
-            return True, face_landmarks
+            return True, face_landmarks, left_eye_ear, right_eye_ear
 
-        return False, None
+        return False, face_landmarks, None, None
+
+    def draw_landmark(self, frame,is_eye_closed, landmarks):
+        both_eye_points = [33,160,158,133,153,144,362,385,387,263,373,380]
+        for idx in both_eye_points:
+            landmark = landmarks.landmark[idx]
+            x = int(landmark.x * frame.shape[1])
+            y = int(landmark.y * frame.shape[0])
+            # cv.putText(frame, str(idx), (x,y), cv.FONT_HERSHEY_SIMPLEX, .3,(0,255,0),1)
+            if is_eye_closed:
+                cv.circle(frame,(x,y),2,(0,0,255),-1)
+            else:
+                cv.circle(frame,(x,y),2,(0,255,0),-1)
+
 
     def process_frame(self, frame, face_landmarks):
-        eye_closure, landmarks = self.detect_eye_closure(face_landmarks)
+        is_eye_closed, landmarks, left_eye_ear, right_eye_ear  = self.detect_eye_closure(face_landmarks)
 
-        if eye_closure:
+        if is_eye_closed:
             cv.putText(frame, "Eye Closure Detected!", (10, 30), cv.FONT_HERSHEY_SIMPLEX, 0.7, (0, 0, 255), 2)
-            self.draw_landmark(frame, landmarks)
+            self.draw_landmark(frame,is_eye_closed, landmarks)
         else:
             cv.putText(frame, "No Eye Closure", (10, 30), cv.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
+            self.draw_landmark(frame,is_eye_closed, landmarks)
 
-        return frame
+        return frame, left_eye_ear, right_eye_ear
 
 
 if __name__ == "__main__":

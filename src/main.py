@@ -43,7 +43,7 @@ while cap.isOpened():
                 cv.putText(frame, str(idx), (x, y), cv.FONT_HERSHEY_SIMPLEX, .3, (0, 255, 0),
                            1)  # Draw a red circle on the landmark
 
-    cv.imshow("Frame", frame)
+    cv.imshow("Ouput Frame", frame)
     if cv.waitKey(1) & 0xff == ord('q'):
         break
 

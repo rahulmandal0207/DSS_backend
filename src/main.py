@@ -11,7 +11,7 @@ mp_face = mp_face_mesh.FaceMesh(
 mp_drawing = mp.drawing_utils
 mp_drawing_styles = mp.drawing_styles
 
-print("hello")
+
 
 cap = cv.VideoCapture(0)
 

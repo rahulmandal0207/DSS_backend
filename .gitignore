@@ -242,5 +242,7 @@ ipython_config.py
 
 resources
 resources/
+mp_env/
+
 
 # End of https://mrkandreev.name/snippets/gitignore-generator/#Python,PyCharm,VirtualEnv,JupyterNotebooks,pytorch

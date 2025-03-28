@@ -30,11 +30,16 @@ class FatigueDetection:
             for face_landmark in results.multi_face_landmarks:
 
                 yawn_frame, mar = self.yawn_detection.process_frame(frame.copy(),face_landmark)
-                print("MAR: ", mar)
-                eye_frame, left_eye_ear, right_eye_ear = self.eye_closure_detection.process_frame(frame.copy(), face_landmark)
-                print("L_EAR: ", left_eye_ear, "R_EAR: ", right_eye_ear)
 
-                return yawn_frame,eye_frame
+                eye_frame, left_eye_ear, right_eye_ear = self.eye_closure_detection.process_frame(frame.copy(), face_landmark)
+
+                print("MAR: ", mar)
+                print("L_EAR: ", left_eye_ear, "R_EAR: ", right_eye_ear)
+                # with open('resources/data/output.csv', 'a') as file:
+                #     file.write(f"{mar},{left_eye_ear},{right_eye_ear}\n")
+                return yawn_frame, eye_frame
+
+        return None, None
 
 
 if __name__ == '__main__':
@@ -51,8 +56,12 @@ if __name__ == '__main__':
 
         yawn_frame , eye_closure_frame = fd.process_frame(frame)
 
-        cv.imshow("Yawn detector", yawn_frame)
-        cv.imshow("Eye closure detector", eye_closure_frame)
+        if yawn_frame is not None:
+            cv.imshow("Yawn detector", yawn_frame)
+
+        if eye_closure_frame is not None:
+
+            cv.imshow("Eye closure detector", eye_closure_frame)
 
         if cv.waitKey(1) & 0xff == ord('q'):
             break

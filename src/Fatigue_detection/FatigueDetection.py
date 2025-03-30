@@ -1,16 +1,23 @@
+import time
 
 import cv2 as cv
 from mediapipe.python import solutions
+from numpy.matlib import eye
+
 from src.Fatigue_detection.submodules.EyeClosureDetection import EyeClosureDetection
 from src.Fatigue_detection.submodules.YawnDetection import YawnDetection
-import pandas as pd
+import  os
+
+from src.Train.make_dataset import make_dataset
 
 
 class FatigueDetection:
     def __init__(self):
 
         self.yawn_detection = YawnDetection()
-        self.eye_closure_detection = EyeClosureDetection()
+        self.eye_closure_detection = EyeClosureDetection(
+            eye_closure_threshold=.2
+        )
 
         self.mp_face_mesh = solutions.face_mesh
         self.face_mesh = self.mp_face_mesh.FaceMesh(
@@ -33,10 +40,9 @@ class FatigueDetection:
 
                 eye_frame, left_eye_ear, right_eye_ear = self.eye_closure_detection.process_frame(frame.copy(), face_landmark)
 
-                print("MAR: ", mar)
-                print("L_EAR: ", left_eye_ear, "R_EAR: ", right_eye_ear)
-                # with open('resources/data/output.csv', 'a') as file:
-                #     file.write(f"{mar},{left_eye_ear},{right_eye_ear}\n")
+                print("MAR: ", mar,"L_EAR: ", left_eye_ear, "R_EAR: ", right_eye_ear)
+
+                make_dataset('drowsy1',mar,left_eye_ear,right_eye_ear)
                 return yawn_frame, eye_frame
 
         return None, None
@@ -45,27 +51,35 @@ class FatigueDetection:
 if __name__ == '__main__':
     fd = FatigueDetection()
 
-    cap = cv.VideoCapture(0)
-    while cap.isOpened():
-        success, frame = cap.read()
-        if not success:
-            print("No frames found")
-            exit()
+    drowsy_path = "../../resources/data/train_data_1/drowsy"
+    drowsy_images = os.listdir(drowsy_path)
 
-        frame = cv.flip(frame,1)
+    not_drowsy_path = "../../resources/data/train_data_1/notdrowsy"
+    not_drowsy_images = os.listdir(not_drowsy_path)
+    # print(not_drowsy_images)
 
-        yawn_frame , eye_closure_frame = fd.process_frame(frame)
+    for image in drowsy_images:
+        frame = cv.imread(f"{drowsy_path}/{image}")
 
-        if yawn_frame is not None:
-            cv.imshow("Yawn detector", yawn_frame)
+        y_frame, e_frame = fd.process_frame(frame)
 
-        if eye_closure_frame is not None:
+        cv.imshow("MAR",y_frame)
+        cv.imshow("EAR", e_frame)
 
-            cv.imshow("Eye closure detector", eye_closure_frame)
+        cv.waitKey(1)
+        cv.destroyAllWindows()
 
-        if cv.waitKey(1) & 0xff == ord('q'):
-            break
+    # for image in not_drowsy_images[0:1000]:
+    #     frame = cv.imread(f"{not_drowsy_path}/{image}")
+    #
+    #     y_frame, e_frame = fd.process_frame(frame)
+    #
+    #     # cv.imshow("MAR",y_frame)
+    #     # cv.imshow("EAR", e_frame)
+    #     #
+    #     # cv.waitKey(1)
+    #     # cv.destroyAllWindows()
 
-    cap.release()
-    cv.destroyAllWindows()
+
+
 

@@ -2,7 +2,6 @@ import time
 
 import cv2 as cv
 from mediapipe.python import solutions
-from numpy.matlib import eye
 
 from src.Fatigue_detection.submodules.EyeClosureDetection import EyeClosureDetection
 from src.Fatigue_detection.submodules.YawnDetection import YawnDetection

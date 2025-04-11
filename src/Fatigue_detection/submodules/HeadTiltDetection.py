@@ -24,6 +24,8 @@ class HeadTiltDetection:
         angle = self.__calculate_angle(left, right)
 
         is_tilted = abs(angle) > self.TILT_THRESHOLD
+
+
         return is_tilted, face_landmarks, angle, [left, right]
 
     def draw_landmarks(self, frame, is_tilted, angle, points):
@@ -31,7 +33,7 @@ class HeadTiltDetection:
         for pt in points:
             cv.circle(frame, pt, 3, color, -1)
 
-        text = f"Head Tilt: {int(angle)}°"
+        text = f"Head Tilt: {int(angle)}"
         cv.putText(frame, text, (10, 60), cv.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
 
     def process_frame(self, frame, face_landmarks):
@@ -43,6 +45,9 @@ class HeadTiltDetection:
             cv.putText(frame, "Head Straight", (10, 90), cv.FONT_HERSHEY_SIMPLEX, 0.7, (0, 255, 0), 2)
 
         self.draw_landmarks(frame, is_tilted, angle, points)
+
+
+
         return frame, angle
 
 

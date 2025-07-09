@@ -58,7 +58,7 @@ class EyeClosureDetection:
             if is_eye_closed:
                 cv.circle(frame,(x,y),2,(0,0,255),-1)
             else:
-                cv.circle(frame,(x,y),2,(0,255,0),-1)
+                cv.circle(frame,(x,y),2,(0,255,1),-1)
 
 
     def process_frame(self, frame, face_landmarks):

@@ -25,3 +25,5 @@ pip install -r requirements.txt
 ```
 
 Step 5: Create a new file for start working
+
+Step 6: Do not forget to add the virtual_environment/resource_folder to the .gitignore file

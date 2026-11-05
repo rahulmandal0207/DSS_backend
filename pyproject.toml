@@ -1,0 +1,101 @@
+[build-system]
+requires = ["setuptools>=75"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "dss-backend"
+version = "1.0.0"
+description = "Real-time driver fatigue and attention monitoring from a camera feed."
+readme = "README.md"
+requires-python = ">=3.10,<3.13"
+authors = [{ name = "DSS contributors" }]
+keywords = ["driver-monitoring", "computer-vision", "fatigue-detection", "mediapipe"]
+classifiers = [
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Image Recognition",
+]
+dependencies = [
+    "flask>=3.1,<4",
+    "flask-cors>=5,<7",
+    "joblib>=1.4,<2",
+    "mediapipe==0.10.21",
+    "numpy>=1.26,<2",
+    "opencv-contrib-python>=4.10,<4.12",
+    "pandas>=2.2,<3",
+    "prometheus-client>=0.21,<1",
+    "pydantic-settings>=2.7,<3",
+    "scikit-learn>=1.5,<2",
+    "waitress>=3,<4",
+]
+
+[project.optional-dependencies]
+dev = [
+    "mypy>=1.13,<2",
+    "pandas-stubs>=2.2,<4",
+    "pre-commit>=4,<5",
+    "pytest>=8.3,<10",
+    "pytest-cov>=6,<8",
+    "ruff>=0.8,<1",
+    "scikit-image>=0.24,<1",
+    "types-waitress>=3,<4",
+]
+
+[project.scripts]
+dss = "dss.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+dss = ["service/templates/*.html", "service/static/*"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-ra --strict-markers --strict-config"
+markers = [
+    "mediapipe: runs the real MediaPipe model (deselect with -m 'not mediapipe')",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["dss"]
+
+[tool.coverage.report]
+show_missing = true
+skip_covered = true
+exclude_also = [
+    "if TYPE_CHECKING:",
+    "if __name__ == .__main__.:",
+]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "N", "S", "C4", "SIM", "RUF"]
+ignore = [
+    "S101", # asserts are fine in tests and for internal invariants
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["conftest", "dss"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S104", "S105", "S106"]
+
+[tool.mypy]
+python_version = "3.10"
+mypy_path = "src"
+packages = ["dss"]
+strict = true
+warn_unreachable = true
+
+[[tool.mypy.overrides]]
+module = ["cv2.*", "joblib.*", "mediapipe.*", "sklearn.*", "flask_cors.*", "sounddevice.*"]
+ignore_missing_imports = true

@@ -246,3 +246,9 @@ mp_env/
 
 
 # End of https://mrkandreev.name/snippets/gitignore-generator/#Python,PyCharm,VirtualEnv,JupyterNotebooks,pytorch
+# DSS: local data, trained models and tool caches
+data/
+models/
+*.joblib
+*.metrics.json
+.ruff_cache/

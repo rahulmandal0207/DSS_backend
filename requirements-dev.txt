@@ -62,7 +62,7 @@ iniconfig==2.3.1
     # via pytest
 itsdangerous==2.2.0
     # via flask
-jax==0.5.3
+jax==0.6.2
     # via mediapipe
 jaxlib==0.5.3
     # via

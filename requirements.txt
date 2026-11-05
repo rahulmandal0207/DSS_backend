@@ -104,7 +104,7 @@ pillow==13.0.0 ; python_full_version >= '3.11'
     # via matplotlib
 prometheus-client==0.26.0
     # via dss-backend (pyproject.toml)
-protobuf==4.25.9
+protobuf==7.36.2
     # via mediapipe
 pycparser==3.11 ; python_full_version < '3.11' and implementation_name != 'PyPy'
     # via cffi

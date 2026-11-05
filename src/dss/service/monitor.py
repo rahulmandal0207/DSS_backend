@@ -5,6 +5,7 @@ from __future__ import annotations
 import logging
 import threading
 import time
+from collections import deque
 from collections.abc import Callable
 from dataclasses import dataclass
 from typing import Generic, TypeVar
@@ -19,7 +20,7 @@ logger = logging.getLogger(__name__)
 
 T = TypeVar("T")
 
-_FPS_SMOOTHING = 0.1
+_FPS_WINDOW_FRAMES = 30
 _STALE_AFTER_S = 5.0
 
 
@@ -77,6 +78,7 @@ class MonitorService:
         alarm: SoundAlarm | None = None,
         retry_s: float = 2.0,
         stop_at_end: bool = False,
+        clock: Callable[[], float] = time.perf_counter,
     ) -> None:
         self._source_factory = source_factory
         self._pipeline_factory = pipeline_factory
@@ -90,7 +92,9 @@ class MonitorService:
         self._thread: threading.Thread | None = None
         self._camera_connected = False
         self._last_frame_at: float | None = None
+        self._frame_times: deque[float] = deque(maxlen=_FPS_WINDOW_FRAMES)
         self._fps = 0.0
+        self._clock = clock
 
     @property
     def camera_connected(self) -> bool:
@@ -112,7 +116,7 @@ class MonitorService:
             self.running
             and self._camera_connected
             and last is not None
-            and time.monotonic() - last < _STALE_AFTER_S
+            and self._clock() - last < _STALE_AFTER_S
         )
 
     def start(self) -> None:
@@ -168,7 +172,7 @@ class MonitorService:
             self._process(frame, pipeline)
 
     def _process(self, frame: Frame, pipeline: FatiguePipeline) -> None:
-        started = time.monotonic()
+        started = self._clock()
         try:
             analysis = pipeline.process(frame, started)
         except Exception:
@@ -176,13 +180,16 @@ class MonitorService:
             logger.exception("Dropping a frame that failed analysis")
             return
 
-        finished = time.monotonic()
+        finished = self._clock()
         FRAMES_PROCESSED.inc()
         FRAME_SECONDS.observe(finished - started)
-        if self._last_frame_at is not None:
-            interval = max(finished - self._last_frame_at, 1e-6)
-            self._fps += _FPS_SMOOTHING * (1.0 / interval - self._fps)
         self._last_frame_at = finished
+
+        # Measured across a window, because two frames can land on the same clock tick.
+        self._frame_times.append(finished)
+        span = self._frame_times[-1] - self._frame_times[0]
+        if span > 0:
+            self._fps = (len(self._frame_times) - 1) / span
 
         self.alerts.observe(analysis.assessment)
         if self._alarm is not None:

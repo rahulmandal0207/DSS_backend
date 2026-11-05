@@ -183,6 +183,18 @@ def test_file_source_stops_at_the_end() -> None:
     assert service.frames.latest() is not None
 
 
+def test_frame_rate_survives_a_coarse_clock(frame: Frame) -> None:
+    """Regression: Windows' 15 ms tick gave two frames the same time, reporting 9878 fps."""
+    # 30 fps in total, delivered in pairs that share a clock tick. Each frame reads the clock twice.
+    ticks = [pair * (2 / 30) for pair in range(40) for _ in range(4)]
+    clock = iter(ticks)
+    service = MonitorService(FakeCamera, pipeline_factory(), clock=lambda: next(clock))
+    pipeline = pipeline_factory()()
+    for _ in range(len(ticks) // 2):
+        service._process(frame, pipeline)
+    assert service.fps == pytest.approx(30, abs=2)  # the window can be one tick short
+
+
 def test_pipeline_is_released_on_stop() -> None:
     detector = ScriptedDetector(synthetic_face())
     service = MonitorService(FakeCamera, pipeline_factory(detector))

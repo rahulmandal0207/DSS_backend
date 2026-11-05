@@ -126,7 +126,7 @@ numpy==1.26.4
     #   scikit-learn
     #   scipy
     #   tifffile
-opencv-contrib-python==4.11.0.86
+opencv-contrib-python==5.0.0.93
     # via
     #   dss-backend (pyproject.toml)
     #   mediapipe

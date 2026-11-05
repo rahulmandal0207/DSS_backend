@@ -11,8 +11,14 @@ from dataclasses import dataclass
 from typing import Generic, TypeVar
 
 from dss.detection.pipeline import FatiguePipeline
-from dss.domain import Frame, FrameAnalysis
-from dss.observability import CAMERA_CONNECTED, FRAME_ERRORS, FRAME_SECONDS, FRAMES_PROCESSED
+from dss.domain import AlertReason, Frame, FrameAnalysis
+from dss.observability import (
+    CAMERA_CONNECTED,
+    CAMERA_FROZEN,
+    FRAME_ERRORS,
+    FRAME_SECONDS,
+    FRAMES_PROCESSED,
+)
 from dss.service.alerts import AlertLog, SoundAlarm
 from dss.service.video import FrameSource
 
@@ -99,6 +105,14 @@ class MonitorService:
     @property
     def camera_connected(self) -> bool:
         return self._camera_connected
+
+    @property
+    def camera_frozen(self) -> bool:
+        """True while frames arrive but the picture has stopped changing."""
+        latest = self.frames.latest()
+        return latest is not None and (
+            AlertReason.CAMERA_FROZEN in latest.analysis.assessment.reasons
+        )
 
     @property
     def fps(self) -> float:
@@ -195,3 +209,4 @@ class MonitorService:
         if self._alarm is not None:
             self._alarm.set_level(analysis.assessment.level)
         self.frames.publish(ProcessedFrame(frame, analysis))
+        CAMERA_FROZEN.set(1 if self.camera_frozen else 0)

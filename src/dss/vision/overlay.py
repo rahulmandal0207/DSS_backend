@@ -7,7 +7,7 @@ from enum import Enum
 import cv2 as cv
 import numpy as np
 
-from dss.domain import AlertLevel, Frame, FrameAnalysis, Landmarks
+from dss.domain import AlertLevel, AlertReason, Frame, FrameAnalysis, Landmarks
 from dss.vision.geometry import EYE_OUTER_CORNERS, INNER_LIPS, LEFT_EYE, MOUTH_CORNERS, RIGHT_EYE
 
 
@@ -78,6 +78,8 @@ def _panel(frame: Frame, lines: list[str], colour: tuple[int, ...]) -> None:
 
 def _status_lines(view: View, analysis: FrameAnalysis) -> list[str]:
     metrics, assessment = analysis.metrics, analysis.assessment
+    if AlertReason.CAMERA_FROZEN in assessment.reasons:
+        return [assessment.level.value.upper(), "Camera image frozen"]
     if not metrics.face_detected:
         return [assessment.level.value.upper(), "No driver detected"]
 

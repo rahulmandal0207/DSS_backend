@@ -35,6 +35,9 @@ class DetectionThresholds(BaseSettings):
 
     face_lost_hold_s: float = Field(default=2.0, gt=0)
 
+    camera_frozen_hold_s: float = Field(default=3.0, gt=0)
+    camera_min_change: float = Field(default=0.05, gt=0)
+
 
 class Settings(BaseSettings):
     """Service configuration. Unset values fall back to safe local-only defaults."""

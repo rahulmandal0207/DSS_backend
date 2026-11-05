@@ -35,6 +35,7 @@ class AlertReason(str, Enum):
     LOOKING_AWAY = "looking_away"
     DRIVER_NOT_VISIBLE = "driver_not_visible"
     MODEL_DROWSY = "model_drowsy"
+    CAMERA_FROZEN = "camera_frozen"
 
 
 REASON_LEVELS: dict[AlertReason, AlertLevel] = {
@@ -46,6 +47,7 @@ REASON_LEVELS: dict[AlertReason, AlertLevel] = {
     AlertReason.LOOKING_AWAY: AlertLevel.WARNING,
     AlertReason.DRIVER_NOT_VISIBLE: AlertLevel.WARNING,
     AlertReason.MODEL_DROWSY: AlertLevel.WARNING,
+    AlertReason.CAMERA_FROZEN: AlertLevel.WARNING,
 }
 
 
@@ -68,6 +70,7 @@ class FrameMetrics:
     ear_right: float | None = None
     mar: float | None = None
     pose: HeadPose | None = None
+    frame_unchanged: bool = False
 
     @property
     def ear_mean(self) -> float | None:

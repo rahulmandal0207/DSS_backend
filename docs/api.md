@@ -38,7 +38,7 @@ The driver's current state.
     "yawns_in_window": 1,
     "model_probability": null
   },
-  "service": { "camera_connected": true, "healthy": true, "fps": 29.7 }
+  "service": { "camera_connected": true, "camera_live": true, "healthy": true, "fps": 29.7 }
 }
 ```
 
@@ -59,6 +59,10 @@ visible.
 | `head_tilted` | Head rolled and held |
 | `driver_not_visible` | No face in view |
 | `model_drowsy` | The optional classifier's smoothed score is over its limit |
+| `camera_frozen` | Frames are arriving, but the picture has stopped changing |
+
+While `camera_frozen` is active no other rule runs, because a stale picture says nothing about
+the driver. Treat it as "the driver is not being monitored".
 
 ## `GET /api/v1/alerts?limit=50`
 
@@ -104,11 +108,14 @@ service.
 
 ## `GET /api/v1/ready`
 
-Readiness. `200` while frames are flowing, otherwise `503`, with the failing check named. Use it to
-decide whether the results can be trusted.
+Readiness. `200` while a live picture is being analysed, otherwise `503`, with the failing check
+named. Use it to decide whether the results can be trusted.
 
 ```json
-{ "status": "not_ready", "checks": { "monitor_running": true, "camera_connected": false } }
+{
+  "status": "not_ready",
+  "checks": { "monitor_running": true, "camera_connected": true, "camera_live": false }
+}
 ```
 
 ## `GET /metrics`
@@ -122,4 +129,5 @@ Prometheus text format.
 | `dss_frame_processing_seconds` | Histogram | Analysis time per frame |
 | `dss_alerts_total{level}` | Counter | Changes into or between alert states |
 | `dss_camera_connected` | Gauge | 1 while the source is connected |
+| `dss_camera_frozen` | Gauge | 1 while the picture has stopped changing |
 | `dss_alert_rank` | Gauge | 0 normal, 1 warning, 2 critical |

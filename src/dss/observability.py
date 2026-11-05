@@ -18,6 +18,7 @@ FRAME_SECONDS = Histogram(
 )
 ALERTS_RAISED = Counter("dss_alerts_total", "Alert level changes.", ["level"])
 CAMERA_CONNECTED = Gauge("dss_camera_connected", "1 while frames are being read from the camera.")
+CAMERA_FROZEN = Gauge("dss_camera_frozen", "1 while the camera picture has stopped changing.")
 ALERT_RANK = Gauge("dss_alert_rank", "Current alert level: 0 normal, 1 warning, 2 critical.")
 
 

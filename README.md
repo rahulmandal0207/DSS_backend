@@ -23,6 +23,7 @@ therefore depends on duration or rate.
 | Head tilted | Head rolled 25° or more, held for 2 s | Warning |
 | Driver not visible | No face found for 2 s | Warning |
 | Classifier (optional) | Trained model's smoothed score of 0.7 or more | Warning |
+| Camera frozen | The picture has not changed for 3 s | Warning |
 
 Head angles are measured against each driver's neutral position, learned in the first 5 seconds,
 so an off-centre camera does not read as a driver looking away.

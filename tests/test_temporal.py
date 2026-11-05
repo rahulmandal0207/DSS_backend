@@ -172,6 +172,46 @@ def test_camera_mounted_off_axis_is_calibrated_away() -> None:
     assert play(analyzer, seconds(12, 15), pose=dropped).level is AlertLevel.CRITICAL
 
 
+def test_a_brief_repeated_frame_is_not_a_freeze(thresholds: DetectionThresholds) -> None:
+    result = play(TemporalAnalyzer(thresholds), seconds(0, 2), unchanged=True)
+    assert result.level is AlertLevel.NORMAL
+
+
+def test_a_frozen_picture_warns(thresholds: DetectionThresholds) -> None:
+    result = play(TemporalAnalyzer(thresholds), seconds(0, 4), unchanged=True)
+    assert result.level is AlertLevel.WARNING
+    assert result.reasons == (AlertReason.CAMERA_FROZEN,)
+
+
+def test_a_freeze_mid_blink_is_not_prolonged_closure(thresholds: DetectionThresholds) -> None:
+    """Closed eyes in a stuck picture are not closed eyes on the road."""
+    analyzer = TemporalAnalyzer(thresholds)
+    play(analyzer, seconds(0, 5))
+    result = play(analyzer, seconds(5, 10), ear=SHUT, unchanged=True)
+    assert result.reasons == (AlertReason.CAMERA_FROZEN,)
+    assert result.eye_closure_s == 0
+
+
+def test_a_frozen_empty_picture_blames_the_camera(thresholds: DetectionThresholds) -> None:
+    result = play(TemporalAnalyzer(thresholds), seconds(0, 6), face=False, unchanged=True)
+    assert result.reasons == (AlertReason.CAMERA_FROZEN,)
+
+
+def test_frozen_time_does_not_count_towards_perclos(thresholds: DetectionThresholds) -> None:
+    analyzer = TemporalAnalyzer(thresholds)
+    play(analyzer, seconds(0, 40), ear=OPEN)
+    result = play(analyzer, seconds(40, 80), ear=SHUT, unchanged=True)
+    assert AlertReason.HIGH_PERCLOS not in result.reasons
+
+
+def test_rules_resume_when_the_picture_returns(thresholds: DetectionThresholds) -> None:
+    analyzer = TemporalAnalyzer(thresholds)
+    play(analyzer, seconds(0, 5), unchanged=True)
+    result = play(analyzer, seconds(5, 7), ear=SHUT)
+    assert AlertReason.CAMERA_FROZEN not in result.reasons
+    assert AlertReason.PROLONGED_EYE_CLOSURE in result.reasons
+
+
 def test_hold_measures_continuous_time_only() -> None:
     hold = Hold()
     assert hold.update(True, 10.0) == 0

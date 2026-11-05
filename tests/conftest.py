@@ -69,9 +69,10 @@ def metrics_at(
     mar: float = 0.05,
     pose: HeadPose | None = None,
     face: bool = True,
+    unchanged: bool = False,
 ) -> FrameMetrics:
     if not face:
-        return FrameMetrics(timestamp=timestamp, face_detected=False)
+        return FrameMetrics(timestamp, False, frame_unchanged=unchanged)
     return FrameMetrics(
         timestamp=timestamp,
         face_detected=True,
@@ -79,7 +80,13 @@ def metrics_at(
         ear_right=ear,
         mar=mar,
         pose=pose or HeadPose(0.0, 0.0, 0.0),
+        frame_unchanged=unchanged,
     )
+
+
+def live_frame(seed: int) -> Frame:
+    """A frame of random noise, standing in for a real sensor that never repeats exactly."""
+    return np.random.default_rng(seed).integers(0, 256, (48, 64, 3), dtype=np.uint8)
 
 
 def seconds(start: float, end: float, fps: int = 30) -> list[float]:

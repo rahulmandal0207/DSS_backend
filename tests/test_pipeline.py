@@ -6,7 +6,7 @@ import numpy as np
 import pandas as pd
 import pytest
 
-from conftest import ScriptedDetector, seconds, synthetic_face
+from conftest import ScriptedDetector, live_frame, seconds, synthetic_face
 from dss.config import DetectionThresholds
 from dss.detection.pipeline import FatiguePipeline
 from dss.domain import AlertLevel, AlertReason, Frame, FrameMetrics, HeadPose
@@ -33,18 +33,53 @@ def test_alert_driver_has_every_measurement(frame: Frame, thresholds: DetectionT
     assert metrics.mar == pytest.approx(0.05)
 
 
-def test_scenario_from_landmarks_to_alert(frame: Frame, thresholds: DetectionThresholds) -> None:
+def test_scenario_from_landmarks_to_alert(thresholds: DetectionThresholds) -> None:
     detector = ScriptedDetector(synthetic_face(ear=0.3))
     pipeline = FatiguePipeline(detector, thresholds)
-    for moment in seconds(0, 2):
-        assert pipeline.process(frame, moment).assessment.level is AlertLevel.NORMAL
+    for index, moment in enumerate(seconds(0, 2)):
+        analysis = pipeline.process(live_frame(index), moment)
+        assert analysis.assessment.level is AlertLevel.NORMAL
 
     detector.default = synthetic_face(ear=0.05)
     last = None
-    for moment in seconds(2, 4):
-        last = pipeline.process(frame, moment)
+    for index, moment in enumerate(seconds(2, 5)):
+        last = pipeline.process(live_frame(index + 1000), moment)
     assert last is not None
     assert last.assessment.level is AlertLevel.CRITICAL
+
+
+def test_frozen_picture_of_an_alert_driver_is_not_reported_as_normal(
+    frame: Frame, thresholds: DetectionThresholds
+) -> None:
+    """Regression: a stalled camera showing a healthy face used to read as normal forever."""
+    pipeline = FatiguePipeline(ScriptedDetector(synthetic_face(ear=0.3)), thresholds)
+    last = None
+    for moment in seconds(0, 5):
+        last = pipeline.process(frame, moment)
+    assert last is not None
+    assert last.assessment.level is AlertLevel.WARNING
+    assert last.assessment.reasons == (AlertReason.CAMERA_FROZEN,)
+
+
+def test_a_motionless_driver_on_a_live_camera_is_not_frozen(
+    thresholds: DetectionThresholds,
+) -> None:
+    pipeline = FatiguePipeline(ScriptedDetector(synthetic_face(ear=0.3)), thresholds)
+    last = None
+    for index, moment in enumerate(seconds(0, 10)):
+        last = pipeline.process(live_frame(index), moment)
+    assert last is not None
+    assert last.assessment.level is AlertLevel.NORMAL
+
+
+def test_alert_clears_when_the_picture_moves_again(
+    frame: Frame, thresholds: DetectionThresholds
+) -> None:
+    pipeline = FatiguePipeline(ScriptedDetector(synthetic_face(ear=0.3)), thresholds)
+    for moment in seconds(0, 5):
+        pipeline.process(frame, moment)
+    analysis = pipeline.process(live_frame(1), 5.1)
+    assert analysis.assessment.reasons == ()
 
 
 def test_close_releases_the_detector(thresholds: DetectionThresholds) -> None:
@@ -91,6 +126,19 @@ def test_model_score_is_smoothed_over_time(frame: Frame, thresholds: DetectionTh
         pipeline.process(frame, moment)
     model.probability = 1.0
     assert pipeline.process(frame, 2.0).assessment.reasons == ()
+
+
+def test_model_is_ignored_while_the_picture_is_frozen(
+    frame: Frame, thresholds: DetectionThresholds
+) -> None:
+    pipeline = FatiguePipeline(
+        ScriptedDetector(synthetic_face()), thresholds, model=FixedModel(0.9)
+    )
+    last = None
+    for moment in seconds(0, 5):
+        last = pipeline.process(frame, moment)
+    assert last is not None
+    assert AlertReason.MODEL_DROWSY not in last.assessment.reasons
 
 
 def test_model_gets_no_score_without_a_face(frame: Frame, thresholds: DetectionThresholds) -> None:

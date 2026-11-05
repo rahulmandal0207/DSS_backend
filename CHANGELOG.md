@@ -9,6 +9,7 @@ A rebuild of the original college project into an installable, tested service.
 - Time-based fatigue rules: prolonged closure, PERCLOS, yawn rate, and sustained head pose.
 - Pitch and yaw head pose alongside roll, with per-driver calibration.
 - A driver-not-visible alert. Losing the face used to freeze the video with no warning.
+- A camera-frozen alert. A connected camera whose picture has stopped no longer reads as normal.
 - Operator dashboard, and a versioned REST API for status and alert history.
 - Health and readiness probes, Prometheus metrics, and optional JSON logs.
 - API key authentication, a safe default bind, and a guard against unauthenticated network exposure.

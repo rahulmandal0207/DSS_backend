@@ -84,9 +84,25 @@ so a slow client cannot delay detection.
 | Failure | Behaviour |
 |---|---|
 | Camera missing or unplugged | Retried indefinitely; `/ready` reports 503, `/health` stays 200 |
+| Camera connected but frozen | `camera_frozen` warning, other rules paused; `/ready` reports 503 |
 | Exception on one frame | Frame dropped and counted in `dss_frame_errors_total` |
 | No audio device | One warning logged; monitoring continues |
 | Too many video viewers | 503 with `Retry-After`, keeping threads free for status and health |
+
+### A frozen picture is treated as a fault
+
+A camera can stay connected and keep delivering frames while its picture has stopped: a virtual
+camera showing a placeholder, or a driver or backend that has stalled. Nothing fails, so a frozen
+picture of an alert driver would read as "normal" indefinitely, which is the worst way for a
+monitor to fail.
+
+`FreezeDetector` compares a sparse grid of pixels between frames. Real sensors always produce
+noise, so a live picture never repeats exactly, even with nothing moving in view. On one laptop
+webcam the smallest change seen between frames was 3.2 out of 255 with the user sitting still,
+against exactly 0 on a still feed, so the default threshold of 0.05 sits well clear of both.
+
+While the picture is frozen, every other rule sees "no measurement". A stale picture says nothing
+about the driver, so a feed that stalls mid-blink must not raise a closed-eyes alarm.
 
 ### The classifier can only add caution
 

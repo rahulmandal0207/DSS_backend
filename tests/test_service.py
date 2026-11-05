@@ -8,6 +8,7 @@ import re
 import threading
 import time
 from collections.abc import Callable, Iterator
+from pathlib import Path
 
 import cv2 as cv
 import numpy as np
@@ -18,6 +19,7 @@ from conftest import ScriptedDetector, synthetic_face
 from dss.config import DetectionThresholds, Settings
 from dss.detection.pipeline import FatiguePipeline
 from dss.domain import (
+    REASON_LEVELS,
     AlertLevel,
     AlertReason,
     Assessment,
@@ -26,6 +28,7 @@ from dss.domain import (
     FrameMetrics,
     analysis_to_dict,
 )
+from dss.service import api as api_module
 from dss.service.alerts import AlertLog
 from dss.service.api import create_app
 from dss.service.monitor import LatestValue, MonitorService
@@ -70,9 +73,11 @@ def assessment(level: AlertLevel, *reasons: AlertReason) -> Assessment:
 
 
 def pipeline_factory(
-    detector: ScriptedDetector | None = None,
+    detector: ScriptedDetector | None = None, **overrides: float
 ) -> Callable[[], FatiguePipeline]:
-    thresholds = DetectionThresholds(_env_file=None, pose_calibration_s=0.0)  # type: ignore[call-arg]
+    thresholds = DetectionThresholds(  # type: ignore[call-arg]
+        _env_file=None, pose_calibration_s=0.0, **overrides
+    )
     return lambda: FatiguePipeline(detector or ScriptedDetector(synthetic_face()), thresholds)
 
 
@@ -255,6 +260,38 @@ def test_not_ready_without_a_camera() -> None:
         assert client.get("/api/v1/status").get_json()["level"] == "unknown"
     finally:
         service.stop()
+
+
+def test_frozen_camera_is_reported_everywhere() -> None:
+    """Frames still arrive, so only the picture itself shows that the feed is dead."""
+    service = MonitorService(FakeCamera, pipeline_factory(camera_frozen_hold_s=0.02))
+    service.start()
+    try:
+        wait_until(lambda: service.camera_frozen)
+        client = create_app(settings(), service).test_client()
+
+        ready = client.get("/api/v1/ready")
+        assert ready.status_code == 503
+        assert ready.get_json()["checks"]["camera_live"] is False
+        assert ready.get_json()["checks"]["camera_connected"] is True
+        assert client.get("/api/v1/health").status_code == 200  # restarting would not help
+
+        status = client.get("/api/v1/status").get_json()
+        assert status["level"] == "warning"
+        assert status["reasons"] == ["camera_frozen"]
+        assert status["service"]["camera_live"] is False
+
+        assert "dss_camera_frozen 1.0" in client.get("/metrics").get_data(as_text=True)
+    finally:
+        service.stop()
+
+
+def test_every_alert_reason_can_be_displayed() -> None:
+    script = Path(api_module.__file__).parent / "static" / "dashboard.js"
+    labels = script.read_text(encoding="utf-8")
+    for reason in AlertReason:
+        assert reason in REASON_LEVELS, reason
+        assert f"{reason.value}:" in labels, reason
 
 
 def test_status_reports_the_driver(client: FlaskClient) -> None:

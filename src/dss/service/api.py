@@ -140,12 +140,13 @@ def create_app(settings: Settings, monitor: MonitorService) -> Flask:
     @api.get("/ready")
     def ready() -> tuple[Response, int]:
         """Readiness: frames are flowing, so results can be trusted."""
-        is_ready = monitor.healthy
+        is_ready = monitor.healthy and not monitor.camera_frozen
         body = jsonify(
             status="ready" if is_ready else "not_ready",
             checks={
                 "monitor_running": monitor.running,
                 "camera_connected": monitor.camera_connected,
+                "camera_live": not monitor.camera_frozen,
             },
         )
         return body, 200 if is_ready else 503
@@ -156,6 +157,7 @@ def create_app(settings: Settings, monitor: MonitorService) -> Flask:
         latest = monitor.frames.latest()
         service = {
             "camera_connected": monitor.camera_connected,
+            "camera_live": not monitor.camera_frozen,
             "healthy": monitor.healthy,
             "fps": round(monitor.fps, 1),
         }

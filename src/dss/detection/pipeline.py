@@ -9,6 +9,7 @@ from dss.config import DetectionThresholds
 from dss.detection.temporal import TemporalAnalyzer, highest_level
 from dss.domain import AlertReason, Assessment, Frame, FrameAnalysis, FrameMetrics, Landmarks
 from dss.ml.model import DrowsinessModel
+from dss.vision.freeze import FreezeDetector
 from dss.vision.geometry import LEFT_EYE, RIGHT_EYE, eye_aspect_ratio, mouth_aspect_ratio
 from dss.vision.head_pose import estimate_head_pose
 from dss.vision.landmarks import LandmarkDetector
@@ -44,8 +45,10 @@ class FatiguePipeline:
         model_threshold: float = 0.7,
         model_smoothing_s: float = 3.0,
     ) -> None:
+        thresholds = thresholds or DetectionThresholds()
         self._detector = detector
-        self._temporal = TemporalAnalyzer(thresholds or DetectionThresholds())
+        self._temporal = TemporalAnalyzer(thresholds)
+        self._freeze = FreezeDetector(thresholds.camera_min_change)
         self._model = model
         self._model_threshold = model_threshold
         self._model_smoothing_s = model_smoothing_s
@@ -53,8 +56,9 @@ class FatiguePipeline:
 
     def process(self, frame: Frame, timestamp: float) -> FrameAnalysis:
         metrics, landmarks = measure(self._detector, frame, timestamp)
+        metrics = replace(metrics, frame_unchanged=self._freeze.is_unchanged(frame))
         assessment = self._temporal.update(metrics)
-        if self._model is not None:
+        if self._model is not None and AlertReason.CAMERA_FROZEN not in assessment.reasons:
             assessment = self._apply_model(self._model, metrics, assessment)
         return FrameAnalysis(metrics, assessment, landmarks)
 

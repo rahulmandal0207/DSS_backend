@@ -52,6 +52,8 @@ Settings come from `DSS_*` environment variables, or a `.env` file in the workin
 | `DSS_HEAD_ROLL_LIMIT_DEG` | `25` | Tilt from neutral |
 | `DSS_HEAD_POSE_HOLD_S` | `2` | How long a pose must be held |
 | `DSS_FACE_LOST_HOLD_S` | `2` | Time without a face before alerting |
+| `DSS_CAMERA_FROZEN_HOLD_S` | `3` | Time with an unchanged picture before alerting |
+| `DSS_CAMERA_MIN_CHANGE` | `0.05` | Mean pixel change, out of 255, below which frames count as identical |
 
 ### Choosing a camera
 
@@ -98,6 +100,7 @@ URL, or run DSS directly on the host.
 Scrape `/metrics`. Useful alerts:
 
 - `dss_camera_connected == 0` for more than a minute.
+- `dss_camera_frozen == 1`, which means the driver is not being monitored.
 - `rate(dss_frame_errors_total[5m]) > 0`.
 - A falling `rate(dss_frames_processed_total[1m])`, which means detection is not keeping up.
 
@@ -120,7 +123,8 @@ applies before using it on anyone but yourself. By design:
 | `Refusing to serve a driver video feed` at startup | Binding beyond localhost with no `DSS_API_KEY` |
 | `pip` cannot find `mediapipe==0.10.21` | Python is newer than 3.12 |
 | `/ready` returns 503 | The camera is missing, or held by another application |
-| Camera connected, but never a face, and the picture does not change | The source is a virtual camera or a stalled backend. See [Choosing a camera](#choosing-a-camera) |
+| `Camera image frozen` alert | The source is a virtual camera or a stalled backend. See [Choosing a camera](#choosing-a-camera) |
+| `Camera image frozen` on a video file | The clip contains a still image, which is treated the same way |
 | Level stays `unknown` | No frames are arriving: check `DSS_VIDEO_SOURCE` and the logs |
 | False head alerts just after start | The driver moved during calibration: restart, or lengthen `DSS_POSE_CALIBRATION_S` |
 | No sound | `DSS_SOUND_ENABLED` is off, or the logs show no usable audio device |

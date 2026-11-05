@@ -129,6 +129,7 @@ class _Holds:
     head_tilted: Hold
     looking_away: Hold
     face_lost: Hold
+    camera_frozen: Hold
 
 
 class TemporalAnalyzer:
@@ -139,11 +140,17 @@ class TemporalAnalyzer:
         self._perclos = Perclos(thresholds.perclos_window_s, thresholds.perclos_min_coverage)
         self._yawns = EventCounter(thresholds.yawn_window_s)
         self._calibrator = PoseCalibrator(thresholds.pose_calibration_s)
-        self._holds = _Holds(Hold(), Hold(), Hold(), Hold(), Hold(), Hold())
+        self._holds = _Holds(Hold(), Hold(), Hold(), Hold(), Hold(), Hold(), Hold())
         self._yawn_counted = False
 
     def update(self, metrics: FrameMetrics) -> Assessment:
         now = metrics.timestamp
+        frozen_s = self._holds.camera_frozen.update(metrics.frame_unchanged, now)
+        frozen = frozen_s >= self._t.camera_frozen_hold_s
+        if frozen:
+            # A stale picture says nothing about the driver, so no other rule may count it.
+            metrics = FrameMetrics(timestamp=now, face_detected=False)
+
         ear, mar = metrics.ear_mean, metrics.mar
         reasons: list[AlertReason] = []
 
@@ -163,9 +170,11 @@ class TemporalAnalyzer:
 
         reasons.extend(self._assess_head(metrics.pose, now))
 
-        lost_s = self._holds.face_lost.update(not metrics.face_detected, now)
+        lost_s = self._holds.face_lost.update(not metrics.face_detected and not frozen, now)
         if lost_s >= self._t.face_lost_hold_s:
             reasons.append(AlertReason.DRIVER_NOT_VISIBLE)
+        if frozen:
+            reasons.append(AlertReason.CAMERA_FROZEN)
 
         return Assessment(
             level=highest_level(reasons),

@@ -19,6 +19,7 @@ const REASON_LABELS = {
   looking_away: "Looking away",
   driver_not_visible: "Driver not visible",
   model_drowsy: "Classifier: drowsy",
+  camera_frozen: "Camera image frozen",
 };
 
 const byId = (id) => document.getElementById(id);
@@ -69,6 +70,13 @@ function reconnectStream() {
   streamInterrupted = false;
 }
 
+function cameraLabel(service) {
+  if (!service.camera_connected) {
+    return "Disconnected";
+  }
+  return service.camera_live ? "Connected" : "Frozen";
+}
+
 function renderStatus(status) {
   reconnectStream();
   document.body.dataset.level = status.level;
@@ -76,7 +84,7 @@ function renderStatus(status) {
   renderReasons(status.reasons || []);
   renderMetrics(status);
 
-  setText("service-camera", status.service.camera_connected ? "Connected" : "Disconnected");
+  setText("service-camera", cameraLabel(status.service));
   setText("service-fps", `${status.service.fps.toFixed(1)} fps`);
   if (status.calibrated !== undefined) {
     setText("service-calibration", status.calibrated ? "Complete" : "In progress");

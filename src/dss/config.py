@@ -43,6 +43,7 @@ class Settings(BaseSettings):
 
     video_source: str = "0"
     video_loop: bool = False
+    camera_backend: Literal["auto", "dshow", "msmf", "v4l2"] = "auto"
     camera_retry_s: float = Field(default=2.0, gt=0)
 
     host: str = "127.0.0.1"

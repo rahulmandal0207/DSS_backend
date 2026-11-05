@@ -12,6 +12,13 @@ from dss.domain import Frame
 
 logger = logging.getLogger(__name__)
 
+_BACKENDS = {
+    "auto": cv.CAP_ANY,
+    "dshow": cv.CAP_DSHOW,
+    "msmf": cv.CAP_MSMF,
+    "v4l2": cv.CAP_V4L2,
+}
+
 
 class FrameSource(Protocol):
     def open(self) -> bool:
@@ -32,17 +39,20 @@ class VideoSource:
     measure wall-clock durations.
     """
 
-    def __init__(self, source: str, loop: bool = False) -> None:
+    def __init__(self, source: str, loop: bool = False, backend: str = "auto") -> None:
         self._source = source
         self._loop = loop
+        self._backend = backend
         self._is_camera = source.isdigit()
         self._capture: cv.VideoCapture | None = None
         self._frame_interval = 0.0
         self._next_frame_at = 0.0
 
     def open(self) -> bool:
-        target = int(self._source) if self._is_camera else self._source
-        self._capture = cv.VideoCapture(target)
+        if self._is_camera:
+            self._capture = cv.VideoCapture(int(self._source), _BACKENDS[self._backend])
+        else:
+            self._capture = cv.VideoCapture(self._source)
         if not self._capture.isOpened():
             logger.warning("Could not open video source %r", self._source)
             self.close()

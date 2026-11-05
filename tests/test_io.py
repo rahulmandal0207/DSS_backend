@@ -59,6 +59,29 @@ def test_missing_source_reports_failure(tmp_path: Path) -> None:
     assert source.read() is None
 
 
+def test_camera_opens_with_the_chosen_backend(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Windows can list the same camera differently per backend, so it must be selectable."""
+    calls: list[tuple[object, ...]] = []
+
+    class FakeCapture:
+        def __init__(self, *args: object) -> None:
+            calls.append(args)
+
+        def isOpened(self) -> bool:  # noqa: N802
+            return True
+
+        def get(self, _: int) -> float:
+            return 0.0
+
+        def release(self) -> None:
+            pass
+
+    monkeypatch.setattr("dss.service.video.cv.VideoCapture", FakeCapture)
+    VideoSource("1", backend="dshow").open()
+    VideoSource("clip.mp4", backend="dshow").open()
+    assert calls == [(1, cv.CAP_DSHOW), ("clip.mp4",)]
+
+
 # ---- Dataset extraction --------------------------------------------------------------------
 
 

@@ -42,6 +42,11 @@ def test_camera_index_and_file_sources() -> None:
     assert make(video_source="drive.mp4").camera_index is None
 
 
+def test_unknown_camera_backend_is_rejected() -> None:
+    with pytest.raises(ValidationError):
+        make(camera_backend="webcam")
+
+
 def test_invalid_threshold_is_rejected() -> None:
     with pytest.raises(ValidationError):
         DetectionThresholds(_env_file=None, ear_closed=-1)  # type: ignore[call-arg]

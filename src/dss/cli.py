@@ -46,7 +46,7 @@ def _build_monitor(settings: Settings) -> MonitorService:
 
     is_file = settings.camera_index is None
     return MonitorService(
-        lambda: VideoSource(settings.video_source, settings.video_loop),
+        lambda: VideoSource(settings.video_source, settings.video_loop, settings.camera_backend),
         build_pipeline,
         AlertLog(settings.alert_history_size),
         SoundAlarm() if settings.sound_enabled else None,

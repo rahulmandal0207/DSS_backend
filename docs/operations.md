@@ -10,6 +10,7 @@ Settings come from `DSS_*` environment variables, or a `.env` file in the workin
 |---|---|---|
 | `DSS_VIDEO_SOURCE` | `0` | Camera index, file path or stream URL |
 | `DSS_VIDEO_LOOP` | `false` | Restart a video file when it ends |
+| `DSS_CAMERA_BACKEND` | `auto` | `auto`, `dshow`, `msmf` or `v4l2`. See [Choosing a camera](#choosing-a-camera) |
 | `DSS_CAMERA_RETRY_S` | `2.0` | Wait between reconnection attempts |
 | `DSS_HOST` | `127.0.0.1` | Bind address |
 | `DSS_PORT` | `8000` | Port |
@@ -51,6 +52,17 @@ Settings come from `DSS_*` environment variables, or a `.env` file in the workin
 | `DSS_HEAD_ROLL_LIMIT_DEG` | `25` | Tilt from neutral |
 | `DSS_HEAD_POSE_HOLD_S` | `2` | How long a pose must be held |
 | `DSS_FACE_LOST_HOLD_S` | `2` | Time without a face before alerting |
+
+### Choosing a camera
+
+Virtual cameras from phone-link or conferencing software count as devices, and on Windows the
+same camera can have a different index under each backend. If the dashboard shows a still picture
+or finds no face, try the DirectShow backend, then the next index:
+
+```text
+DSS_CAMERA_BACKEND=dshow
+DSS_VIDEO_SOURCE=1
+```
 
 ### Tuning
 
@@ -108,6 +120,7 @@ applies before using it on anyone but yourself. By design:
 | `Refusing to serve a driver video feed` at startup | Binding beyond localhost with no `DSS_API_KEY` |
 | `pip` cannot find `mediapipe==0.10.21` | Python is newer than 3.12 |
 | `/ready` returns 503 | The camera is missing, or held by another application |
+| Camera connected, but never a face, and the picture does not change | The source is a virtual camera or a stalled backend. See [Choosing a camera](#choosing-a-camera) |
 | Level stays `unknown` | No frames are arriving: check `DSS_VIDEO_SOURCE` and the logs |
 | False head alerts just after start | The driver moved during calibration: restart, or lengthen `DSS_POSE_CALIBRATION_S` |
 | No sound | `DSS_SOUND_ENABLED` is off, or the logs show no usable audio device |

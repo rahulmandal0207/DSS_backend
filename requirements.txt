@@ -88,7 +88,7 @@ numpy==1.26.4
     #   pandas
     #   scikit-learn
     #   scipy
-opencv-contrib-python==4.11.0.86
+opencv-contrib-python==5.0.0.93
     # via
     #   dss-backend (pyproject.toml)
     #   mediapipe

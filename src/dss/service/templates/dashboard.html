@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DSS Console</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+  <script src="{{ url_for('static', filename='dashboard.js') }}" defer></script>
+</head>
+<body data-level="unknown">
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <div>
+        <h1>Driver Surveillance System</h1>
+        <p>Operator console · v{{ version }}</p>
+      </div>
+    </div>
+    <dl class="service" aria-label="Service status">
+      <div><dt>Camera</dt><dd id="service-camera">—</dd></div>
+      <div><dt>Frame rate</dt><dd id="service-fps">—</dd></div>
+      <div><dt>Pose calibration</dt><dd id="service-calibration">—</dd></div>
+    </dl>
+  </header>
+
+  <main class="layout">
+    <section class="state" aria-live="polite" aria-labelledby="state-heading">
+      <div>
+        <p class="eyebrow">Driver state</p>
+        <h2 id="state-heading">Waiting for data</h2>
+      </div>
+      <ul id="state-reasons" class="reasons"></ul>
+    </section>
+
+    <section class="video" aria-label="Live video">
+      {% if stream_enabled %}
+      <div class="tabs" role="tablist" aria-label="Video view">
+        {% for view in views %}
+        <button role="tab" type="button" data-view="{{ view }}"
+                aria-selected="{{ 'true' if view == 'annotated' else 'false' }}">{{ view.replace('_', ' ') }}</button>
+        {% endfor %}
+      </div>
+      <div class="frame">
+        <img id="stream" alt="Live driver camera with analysis overlay" src="{{ url_for('api.video_stream', view_name='annotated') }}">
+      </div>
+      {% else %}
+      <div class="frame frame-off"><p>Video streaming is disabled by configuration.<br>Measurements continue below.</p></div>
+      {% endif %}
+    </section>
+
+    <section class="metrics" aria-label="Live measurements">
+      <article class="tile"><h3>PERCLOS</h3><p id="metric-perclos">—</p><small>eyes closed, last 60 s</small></article>
+      <article class="tile"><h3>Eye closure</h3><p id="metric-closure">—</p><small>current duration</small></article>
+      <article class="tile"><h3>Yawns</h3><p id="metric-yawns">—</p><small>last 5 minutes</small></article>
+      <article class="tile"><h3>Eye ratio</h3><p id="metric-ear">—</p><small>EAR, both eyes</small></article>
+      <article class="tile"><h3>Mouth ratio</h3><p id="metric-mar">—</p><small>MAR</small></article>
+      <article class="tile"><h3>Head pose</h3><p id="metric-pose">—</p><small>pitch / yaw / roll</small></article>
+    </section>
+
+    <section class="log" aria-labelledby="log-heading">
+      <h2 id="log-heading">Alert history</h2>
+      <p id="log-empty" class="log-empty">No alerts recorded.</p>
+      <ol id="log-list"></ol>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,22 @@
+services:
+  dss:
+    build: .
+    image: dss-backend:1.0.0
+    restart: unless-stopped
+    ports:
+      # Published on localhost only. Put a TLS proxy in front to expose it further.
+      - "127.0.0.1:8000:8000"
+    environment:
+      DSS_API_KEY: ${DSS_API_KEY:?Set DSS_API_KEY in your shell or .env file}
+      DSS_VIDEO_SOURCE: ${DSS_VIDEO_SOURCE:-0}
+      DSS_LOG_FORMAT: json
+    # Passing a webcam through needs a Linux host. Docker Desktop on Windows and macOS cannot do
+    # this: there, remove these two keys and set DSS_VIDEO_SOURCE to a video URL.
+    devices:
+      - /dev/video0:/dev/video0
+    group_add:
+      - video
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true

@@ -64,7 +64,7 @@ itsdangerous==2.2.0
     # via flask
 jax==0.5.3
     # via mediapipe
-jaxlib==0.5.3
+jaxlib==0.6.2
     # via
     #   jax
     #   mediapipe

@@ -22,7 +22,7 @@ dependencies = [
     "joblib>=1.4,<2",
     "mediapipe==0.10.21",
     "numpy>=1.26,<2",
-    "opencv-contrib-python>=4.10,<4.12",
+    "opencv-contrib-python>=4.10,<5.1",
     "pandas>=2.2,<3",
     "prometheus-client>=0.21,<1",
     "pydantic-settings>=2.7,<3",

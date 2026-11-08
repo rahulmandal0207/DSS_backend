@@ -11,10 +11,8 @@ from dataclasses import asdict
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from pydantic import ValidationError
-
 from dss import __version__
-from dss.config import DetectionThresholds, Settings
+from dss.config import ConfigError, DetectionThresholds, Settings, load_config
 from dss.observability import configure_logging
 
 if TYPE_CHECKING:
@@ -23,7 +21,7 @@ if TYPE_CHECKING:
 logger = logging.getLogger(__name__)
 
 
-def _build_monitor(settings: Settings) -> MonitorService:
+def _build_monitor(settings: Settings, thresholds: DetectionThresholds) -> MonitorService:
     # Heavy imports stay inside the commands so `dss --help` answers instantly.
     from dss.detection.pipeline import FatiguePipeline
     from dss.ml.model import DrowsinessModel
@@ -33,7 +31,6 @@ def _build_monitor(settings: Settings) -> MonitorService:
     from dss.vision.landmarks import MediaPipeFaceMesh
 
     model = DrowsinessModel.load(settings.model_path) if settings.model_path else None
-    thresholds = DetectionThresholds()
 
     def build_pipeline() -> FatiguePipeline:
         return FatiguePipeline(
@@ -55,13 +52,13 @@ def _build_monitor(settings: Settings) -> MonitorService:
     )
 
 
-def serve(settings: Settings) -> int:
+def serve(settings: Settings, thresholds: DetectionThresholds) -> int:
     """Run the monitor behind the HTTP API until interrupted."""
     from waitress import serve as waitress_serve
 
     from dss.service.api import create_app
 
-    monitor = _build_monitor(settings)
+    monitor = _build_monitor(settings, thresholds)
     app = create_app(settings, monitor)
     monitor.start()
 
@@ -85,13 +82,13 @@ def serve(settings: Settings) -> int:
     return 0
 
 
-def monitor_window(settings: Settings) -> int:
+def monitor_window(settings: Settings, thresholds: DetectionThresholds) -> int:
     """Run the monitor with a local preview window. Press q to quit."""
     import cv2 as cv
 
     from dss.vision.overlay import View, render
 
-    monitor = _build_monitor(settings)
+    monitor = _build_monitor(settings, thresholds)
     monitor.start()
     version = 0
     try:
@@ -164,17 +161,20 @@ def build_parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     args = build_parser().parse_args(argv)
     try:
-        settings = Settings()
-    except ValidationError as error:
-        for problem in error.errors():
-            print(f"Configuration error: {problem['msg']}", file=sys.stderr)
+        config = load_config()
+    except ConfigError as error:
+        for problem in error.problems:
+            print(f"Configuration error: {problem}", file=sys.stderr)
         return 2
+    settings = config.settings
     configure_logging(settings.log_level, settings.log_format)
+    for name in config.unrecognised:
+        logger.warning("Ignoring %s: it is not a DSS setting", name)
 
     if args.command == "serve":
-        return serve(settings)
+        return serve(settings, config.thresholds)
     if args.command == "monitor":
-        return monitor_window(settings)
+        return monitor_window(settings, config.thresholds)
     if args.command == "extract":
         return extract(args.input, args.output)
     return train(args.data, args.output, args.kernel)

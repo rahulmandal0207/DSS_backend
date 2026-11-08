@@ -2,8 +2,6 @@
 #    uv pip compile pyproject.toml --extra dev --universal --python-version 3.10 --no-emit-index-url -o requirements-dev.txt
 absl-py==2.5.1
     # via mediapipe
-annotated-types==0.8.0
-    # via pydantic
 attrs==26.1.0
     # via mediapipe
 blinker==1.9.0
@@ -177,14 +175,6 @@ pycparser==3.11 ; python_full_version < '3.11' and implementation_name != 'PyPy'
     # via cffi
 pycparser==3.12 ; python_full_version >= '3.11' and implementation_name != 'PyPy'
     # via cffi
-pydantic==2.14.3
-    # via pydantic-settings
-pydantic-core==2.50.4
-    # via pydantic
-pydantic-settings==2.15.0 ; python_full_version < '3.11'
-    # via dss-backend (pyproject.toml)
-pydantic-settings==2.16.2 ; python_full_version >= '3.11'
-    # via dss-backend (pyproject.toml)
 pygments==2.21.0
     # via pytest
 pyparsing==3.3.3
@@ -205,8 +195,6 @@ python-dateutil==4.0.0 ; python_full_version >= '3.11'
     #   pandas
 python-discovery==1.9.4
     # via virtualenv
-python-dotenv==1.2.4
-    # via pydantic-settings
 pytz==2026.6
     # via pandas
 pyyaml==6.0.3
@@ -259,15 +247,7 @@ typing-extensions==4.16.0
     #   exceptiongroup
     #   flask-cors
     #   mypy
-    #   pydantic
-    #   pydantic-core
-    #   pydantic-settings
-    #   typing-inspection
     #   virtualenv
-typing-inspection==0.4.5
-    # via
-    #   pydantic
-    #   pydantic-settings
 tzdata==2026.6
     # via
     #   pandas

@@ -103,7 +103,7 @@ Liveness. Always `200` while the process can answer. Use it to decide whether to
 service.
 
 ```json
-{ "status": "ok", "version": "1.0.0" }
+{ "status": "ok", "version": "1.0.1" }
 ```
 
 ## `GET /api/v1/ready`

@@ -75,14 +75,12 @@ def assessment(level: AlertLevel, *reasons: AlertReason) -> Assessment:
 def pipeline_factory(
     detector: ScriptedDetector | None = None, **overrides: float
 ) -> Callable[[], FatiguePipeline]:
-    thresholds = DetectionThresholds(  # type: ignore[call-arg]
-        _env_file=None, pose_calibration_s=0.0, **overrides
-    )
+    thresholds = DetectionThresholds(pose_calibration_s=0.0, **overrides)  # type: ignore[arg-type]
     return lambda: FatiguePipeline(detector or ScriptedDetector(synthetic_face()), thresholds)
 
 
 def settings(**overrides: object) -> Settings:
-    return Settings(_env_file=None, **overrides)  # type: ignore[arg-type,call-arg]
+    return Settings(**overrides)  # type: ignore[arg-type]
 
 
 @pytest.fixture

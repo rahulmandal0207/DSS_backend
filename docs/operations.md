@@ -3,6 +3,11 @@
 ## Configuration
 
 Settings come from `DSS_*` environment variables, or a `.env` file in the working directory.
+Environment variables win when both set the same name. Names are not case-sensitive.
+
+DSS checks the whole configuration before starting, and lists every invalid value at once. A
+`DSS_*` name that matches no setting is logged as a warning, so a typo does not silently fall
+back to the default.
 
 ### Service
 
@@ -122,6 +127,7 @@ applies before using it on anyone but yourself. By design:
 |---|---|
 | `Refusing to serve a driver video feed` at startup | Binding beyond localhost with no `DSS_API_KEY` |
 | `pip` cannot find `mediapipe==0.10.21` | Python is newer than 3.12 |
+| `An Application Control policy has blocked this file` | Windows Smart App Control is refusing an unsigned compiled library. DSS avoids the ones known to be blocked; report any other |
 | `/ready` returns 503 | The camera is missing, or held by another application |
 | `Camera image frozen` alert | The source is a virtual camera or a stalled backend. See [Choosing a camera](#choosing-a-camera) |
 | `Camera image frozen` on a video file | The clip contains a still image, which is treated the same way |

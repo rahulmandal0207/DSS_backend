@@ -159,7 +159,7 @@ def test_alerts_clear_when_the_driver_recovers(thresholds: DetectionThresholds) 
 
 
 def test_camera_mounted_off_axis_is_calibrated_away() -> None:
-    thresholds = DetectionThresholds(_env_file=None, pose_calibration_s=2.0)  # type: ignore[call-arg]
+    thresholds = DetectionThresholds(pose_calibration_s=2.0)
     analyzer = TemporalAnalyzer(thresholds)
     mounted = HeadPose(pitch=25, yaw=35, roll=0)
     calibrating = play(analyzer, seconds(0, 1.9), pose=mounted)

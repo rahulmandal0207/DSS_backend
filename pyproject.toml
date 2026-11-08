@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "dss-backend"
-version = "1.0.0"
+version = "1.0.1"
 description = "Real-time driver fatigue and attention monitoring from a camera feed."
 readme = "README.md"
 requires-python = ">=3.10,<3.13"
@@ -25,7 +25,6 @@ dependencies = [
     "opencv-contrib-python>=4.10,<4.12",
     "pandas>=2.2,<3",
     "prometheus-client>=0.21,<1",
-    "pydantic-settings>=2.7,<3",
     "scikit-learn>=1.5,<2",
     "waitress>=3,<4",
 ]

@@ -1,5 +1,5 @@
 # syntax=docker/dockerfile:1
-FROM python:3.11-slim-bookworm AS builder
+FROM python:3.15-slim-bookworm AS builder
 
 WORKDIR /build
 COPY pyproject.toml README.md requirements.txt ./
@@ -9,7 +9,7 @@ RUN python -m venv /opt/venv \
     && /opt/venv/bin/pip install --no-cache-dir --no-deps .
 
 
-FROM python:3.11-slim-bookworm
+FROM python:3.15-slim-bookworm
 
 # OpenCV and MediaPipe link against these at import time.
 RUN apt-get update \

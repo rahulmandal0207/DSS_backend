@@ -8,6 +8,13 @@ is fit to drive, and reports that through an operator dashboard, a REST API and 
 > have not been validated in a vehicle or a clinical study. It must not be relied on to keep anyone
 > safe.
 
+## Live demo
+
+**[Try it in your browser](https://rahulmandal0207.github.io/DSS_backend/)** with your own webcam.
+The demo runs the same detection rules in JavaScript, entirely on your device, so your video is
+never uploaded. See [docs/demo.md](docs/demo.md) for how it works and how it stays in step with
+this service.
+
 ## What it detects
 
 A single frame cannot show drowsiness, because a blink looks exactly like a closed eye. Every rule

@@ -1,5 +1,13 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- A browser demo in `web/`, published to GitHub Pages. It runs the same rules in JavaScript on the
+  visitor's own device, so anyone can try DSS with their webcam and no video is uploaded. A shared
+  test fixture keeps it identical to the Python service.
+
 ## 1.0.1
 
 ### Fixed

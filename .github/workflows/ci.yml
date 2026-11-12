@@ -49,6 +49,16 @@ jobs:
       - run: pip install -r requirements-dev.txt -e .
       - run: pytest --cov=dss --cov-report=term --cov-fail-under=85
 
+  web:
+    name: Browser demo
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: "22"
+      - run: node --test tests/web/fatigue.test.mjs
+
   docker:
     name: Container image
     runs-on: ubuntu-latest

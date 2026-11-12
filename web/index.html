@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DSS Live Demo</title>
+  <meta name="description" content="Driver fatigue and attention detection that runs entirely in your browser. Your video never leaves your device.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='%233fb950'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="styles.css">
+  <script type="module" src="js/app.js"></script>
+</head>
+<body data-level="idle">
+  <header class="topbar">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true"></span>
+      <div>
+        <h1>Driver Surveillance System</h1>
+        <p>Live demo · runs entirely in your browser</p>
+      </div>
+    </div>
+    <a class="source-link" href="https://github.com/rahulmandal0207/DSS_backend">Source on GitHub</a>
+  </header>
+
+  <main>
+    <section class="intro" id="intro" aria-labelledby="intro-heading">
+      <h2 id="intro-heading">Detect driver fatigue on your own face</h2>
+      <p class="lead">
+        DSS watches the eyes, mouth and head, and decides from how they change over time whether a
+        driver is fit to drive. A blink is fine. Eyes closed for 1.5 seconds is not.
+      </p>
+      <div class="actions">
+        <button id="start-camera" class="button primary" type="button">Start camera</button>
+        <label class="button" for="video-file">Use a video file</label>
+        <input id="video-file" type="file" accept="video/*" class="visually-hidden">
+      </div>
+      <p id="message" class="message" role="status" aria-live="polite"></p>
+      <ul class="notes">
+        <li><strong>Private.</strong> Your video is analysed on this device and never uploaded. The face model, about 17 MB, downloads once from jsDelivr and Google.</li>
+        <li><strong>Not a safety device.</strong> This is a student engineering project. Don't rely on it to keep anyone safe.</li>
+      </ul>
+    </section>
+
+    <div class="layout" id="monitor" hidden>
+      <section class="state" aria-live="polite" aria-labelledby="state-heading">
+        <div>
+          <p class="eyebrow">Driver state</p>
+          <h2 id="state-heading">Starting</h2>
+          <p id="calibration" class="calibration" hidden>Look ahead normally for a few seconds while DSS learns your neutral head position.</p>
+        </div>
+        <ul id="state-reasons" class="reasons"></ul>
+      </section>
+
+      <section class="video" aria-label="Video">
+        <div class="toolbar">
+          <label class="field" id="camera-field" hidden>
+            <span>Camera</span>
+            <select id="camera-select"></select>
+          </label>
+          <label class="toggle">
+            <input id="sound" type="checkbox">
+            <span>Sound alarm</span>
+          </label>
+          <span id="stats" class="stats"></span>
+          <button id="stop" class="button small" type="button">Stop</button>
+        </div>
+        <div class="stage" id="stage">
+          <video id="video" playsinline muted></video>
+          <canvas id="overlay" aria-hidden="true"></canvas>
+        </div>
+      </section>
+
+      <section class="metrics" aria-label="Live measurements">
+        <article class="tile"><h3>PERCLOS</h3><p id="metric-perclos">—</p><small>eyes closed, last 60 s</small></article>
+        <article class="tile"><h3>Eye closure</h3><p id="metric-closure">—</p><small>current duration</small></article>
+        <article class="tile"><h3>Yawns</h3><p id="metric-yawns">—</p><small>last 5 minutes</small></article>
+        <article class="tile"><h3>Eye ratio</h3><p id="metric-ear">—</p><small>EAR, left / right</small></article>
+        <article class="tile"><h3>Mouth ratio</h3><p id="metric-mar">—</p><small>MAR</small></article>
+        <article class="tile"><h3>Head pose</h3><p id="metric-pose">—</p><small>pitch / yaw / roll</small></article>
+      </section>
+
+      <aside class="side">
+        <section class="panel" aria-labelledby="try-heading">
+          <h2 id="try-heading">Try these</h2>
+          <ol class="try">
+            <li><span>Blink normally</span><small>Nothing happens</small></li>
+            <li><span>Close your eyes for 2 seconds</span><small>Eyes closed too long</small></li>
+            <li><span>Drop your chin for 2 seconds</span><small>Head dropping</small></li>
+            <li><span>Look over your shoulder for 2 seconds</span><small>Looking away</small></li>
+            <li><span>Tilt your head sideways for 2 seconds</span><small>Head tilted</small></li>
+            <li><span>Move out of view</span><small>Driver not visible</small></li>
+            <li><span>Yawn three times, about 2 seconds each</span><small>Frequent yawning</small></li>
+          </ol>
+        </section>
+        <section class="panel log" aria-labelledby="log-heading">
+          <h2 id="log-heading">Alert history</h2>
+          <p id="log-empty" class="log-empty">No alerts yet.</p>
+          <ol id="log-list"></ol>
+        </section>
+      </aside>
+    </div>
+  </main>
+
+  <footer class="footer">
+    Same detection rules as the DSS Python service, checked against it by a shared test fixture.
+    Face landmarks by <a href="https://ai.google.dev/edge/mediapipe/solutions/vision/face_landmarker">MediaPipe</a>.
+  </footer>
+</body>
+</html>

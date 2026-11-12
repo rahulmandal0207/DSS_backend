@@ -40,6 +40,9 @@ Branch from `main`, keep each pull request to one change, and use short imperati
 - Use `ScriptedDetector` and `synthetic_face` from `tests/conftest.py` rather than a webcam.
 - Anything depending on what MediaPipe really outputs belongs in
   `tests/test_mediapipe_integration.py`.
+- The browser demo copies the detection rules into `web/js/fatigue.js`. Run
+  `node --test tests/web/fatigue.test.mjs` after touching either copy, and see
+  [docs/demo.md](docs/demo.md) for regenerating the shared fixture.
 
 ## Changing dependencies
 
@@ -58,4 +61,5 @@ uv pip compile pyproject.toml --extra dev --universal --python-version 3.10 --no
 - A detector returns a complete result for every frame, including when no face is present.
 - All measurements stay in pixels, and all durations in seconds.
 - Nothing writes frames to disk.
-- A new alert reason needs a level in `REASON_LEVELS`, and a label in `dashboard.js`.
+- A new alert reason needs a level in `REASON_LEVELS`, a label in `dashboard.js`, and the same
+  rule, level and label in the browser demo.

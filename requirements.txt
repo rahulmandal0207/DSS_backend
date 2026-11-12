@@ -86,7 +86,7 @@ numpy==1.26.4
     #   pandas
     #   scikit-learn
     #   scipy
-opencv-contrib-python==5.0.0.93
+opencv-contrib-python==4.11.0.86
     # via
     #   dss-backend (pyproject.toml)
     #   mediapipe
@@ -102,7 +102,7 @@ pillow==13.0.0 ; python_full_version >= '3.11'
     # via matplotlib
 prometheus-client==0.26.0
     # via dss-backend (pyproject.toml)
-protobuf==7.36.2
+protobuf==4.25.9
     # via mediapipe
 pycparser==3.11 ; python_full_version < '3.11' and implementation_name != 'PyPy'
     # via cffi

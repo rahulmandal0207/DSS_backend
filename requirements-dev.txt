@@ -264,7 +264,7 @@ tzdata==2026.6
     # via
     #   pandas
     #   python-dateutil
-virtualenv==21.15.5
+virtualenv==21.15.6
     # via pre-commit
 waitress==3.0.2
     # via dss-backend (pyproject.toml)

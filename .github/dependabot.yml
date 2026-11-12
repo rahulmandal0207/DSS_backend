@@ -5,8 +5,21 @@ updates:
     schedule:
       interval: weekly
     ignore:
-      # MediaPipe constrains numpy and protobuf, so upgrading it is a deliberate migration.
+      # MediaPipe pins much of the stack, so upgrading it is a deliberate migration.
       - dependency-name: mediapipe
+      # mediapipe 0.10.21 needs numpy 1.x and protobuf 4.x, and OpenCV 4.12 and later need numpy 2.
+      - dependency-name: numpy
+        versions: [">=2"]
+      - dependency-name: protobuf
+        versions: [">=5"]
+      - dependency-name: opencv-contrib-python
+        versions: [">=4.12"]
+      # Installed only because mediapipe requires them. jax and jaxlib must stay at the same
+      # version, which separate pull requests cannot do, so they move only when the lockfiles
+      # are regenerated.
+      - dependency-name: jax
+      - dependency-name: jaxlib
+      - dependency-name: ml-dtypes
   - package-ecosystem: github-actions
     directory: /
     schedule:

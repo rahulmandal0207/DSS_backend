@@ -96,7 +96,7 @@ def seconds(start: float, end: float, fps: int = 30) -> list[float]:
 
 @pytest.fixture
 def thresholds() -> DetectionThresholds:
-    return DetectionThresholds(_env_file=None, pose_calibration_s=0.0)  # type: ignore[call-arg]
+    return DetectionThresholds(pose_calibration_s=0.0)
 
 
 @pytest.fixture

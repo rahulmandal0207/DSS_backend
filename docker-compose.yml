@@ -1,7 +1,7 @@
 services:
   dss:
     build: .
-    image: dss-backend:1.0.0
+    image: dss-backend:1.0.1
     restart: unless-stopped
     ports:
       # Published on localhost only. Put a TLS proxy in front to expose it further.

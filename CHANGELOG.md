@@ -1,5 +1,21 @@
 # Changelog
 
+## 1.0.1
+
+### Fixed
+
+- DSS could not start under Windows Smart App Control, which blocks pydantic's compiled core.
+  Settings are now read with the standard library, and pydantic is no longer a dependency.
+- The project could not be installed from its lockfiles. Merged Dependabot updates had raised
+  `protobuf` to 7 and `opencv-contrib-python` to 5, which MediaPipe cannot use, so every CI job
+  and the Docker build failed. The lockfiles are regenerated from `pyproject.toml`, and
+  Dependabot now skips those upgrades.
+
+### Changed
+
+- Every invalid setting is reported at once, by its `DSS_*` name, instead of one at a time.
+- An unrecognised `DSS_*` variable is logged as a warning, so typos are visible.
+
 ## 1.0.0
 
 A rebuild of the original college project into an installable, tested service.

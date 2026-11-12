@@ -2,8 +2,6 @@
 #    uv pip compile pyproject.toml --universal --python-version 3.10 --no-emit-index-url -o requirements.txt
 absl-py==2.5.1
     # via mediapipe
-annotated-types==0.8.0
-    # via pydantic
 attrs==26.1.0
     # via mediapipe
 blinker==1.9.0
@@ -88,7 +86,7 @@ numpy==1.26.4
     #   pandas
     #   scikit-learn
     #   scipy
-opencv-contrib-python==5.0.0.93
+opencv-contrib-python==4.11.0.86
     # via
     #   dss-backend (pyproject.toml)
     #   mediapipe
@@ -104,20 +102,12 @@ pillow==13.0.0 ; python_full_version >= '3.11'
     # via matplotlib
 prometheus-client==0.26.0
     # via dss-backend (pyproject.toml)
-protobuf==7.36.2
+protobuf==4.25.9
     # via mediapipe
 pycparser==3.11 ; python_full_version < '3.11' and implementation_name != 'PyPy'
     # via cffi
 pycparser==3.12 ; python_full_version >= '3.11' and implementation_name != 'PyPy'
     # via cffi
-pydantic==2.14.3
-    # via pydantic-settings
-pydantic-core==2.50.4
-    # via pydantic
-pydantic-settings==2.15.0 ; python_full_version < '3.11'
-    # via dss-backend (pyproject.toml)
-pydantic-settings==2.16.2 ; python_full_version >= '3.11'
-    # via dss-backend (pyproject.toml)
 pyparsing==3.3.3
     # via matplotlib
 python-dateutil==3.0.0 ; python_full_version < '3.11'
@@ -128,8 +118,6 @@ python-dateutil==4.0.0 ; python_full_version >= '3.11'
     # via
     #   matplotlib
     #   pandas
-python-dotenv==1.2.4
-    # via pydantic-settings
 pytz==2026.6
     # via pandas
 scikit-learn==1.7.2 ; python_full_version < '3.11'
@@ -154,17 +142,8 @@ sounddevice==0.5.6
     # via mediapipe
 threadpoolctl==3.8.0
     # via scikit-learn
-typing-extensions==4.16.0
-    # via
-    #   flask-cors
-    #   pydantic
-    #   pydantic-core
-    #   pydantic-settings
-    #   typing-inspection
-typing-inspection==0.4.5
-    # via
-    #   pydantic
-    #   pydantic-settings
+typing-extensions==4.16.0 ; python_full_version < '3.11'
+    # via flask-cors
 tzdata==2026.6
     # via
     #   pandas

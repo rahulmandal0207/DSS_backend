@@ -57,7 +57,8 @@ opening the file directly:
 python -m http.server 8080 --directory web
 ```
 
-Then open <http://localhost:8080>. Run the JavaScript tests with `node --test tests/web/`.
+Then open <http://localhost:8080>. Run the JavaScript tests with
+`node --test tests/web/fatigue.test.mjs`.
 
 ## Publishing
 

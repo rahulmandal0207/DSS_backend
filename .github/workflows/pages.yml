@@ -33,7 +33,7 @@ jobs:
         with:
           node-version: "22"
       - name: Check the demo still matches the Python rules
-        run: node --test tests/web/
+        run: node --test tests/web/fatigue.test.mjs
       - uses: actions/configure-pages@v6
       - uses: actions/upload-pages-artifact@v5
         with:

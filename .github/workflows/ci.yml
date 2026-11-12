@@ -57,7 +57,7 @@ jobs:
       - uses: actions/setup-node@v7
         with:
           node-version: "22"
-      - run: node --test tests/web/
+      - run: node --test tests/web/fatigue.test.mjs
 
   docker:
     name: Container image

@@ -40,9 +40,9 @@ Branch from `main`, keep each pull request to one change, and use short imperati
 - Use `ScriptedDetector` and `synthetic_face` from `tests/conftest.py` rather than a webcam.
 - Anything depending on what MediaPipe really outputs belongs in
   `tests/test_mediapipe_integration.py`.
-- The browser demo copies the detection rules into `web/js/fatigue.js`. Run `node --test tests/web/`
-  after touching either copy, and see [docs/demo.md](docs/demo.md) for regenerating the shared
-  fixture.
+- The browser demo copies the detection rules into `web/js/fatigue.js`. Run
+  `node --test tests/web/fatigue.test.mjs` after touching either copy, and see
+  [docs/demo.md](docs/demo.md) for regenerating the shared fixture.
 
 ## Changing dependencies
 

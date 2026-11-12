@@ -87,7 +87,7 @@ ignore = [
 known-first-party = ["conftest", "dss"]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S104", "S105", "S106"]
+"tests/**" = ["S104", "S105", "S106", "S311"]
 
 [tool.mypy]
 python_version = "3.10"

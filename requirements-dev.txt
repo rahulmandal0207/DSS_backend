@@ -60,9 +60,9 @@ iniconfig==2.3.1
     # via pytest
 itsdangerous==2.2.0
     # via flask
-jax==0.5.3
+jax==0.6.2
     # via mediapipe
-jaxlib==0.5.3
+jaxlib==0.6.2
     # via
     #   jax
     #   mediapipe
@@ -93,7 +93,7 @@ ml-dtypes==0.4.1
     # via
     #   jax
     #   jaxlib
-mypy==1.20.2
+mypy==2.4.1
     # via dss-backend (pyproject.toml)
 mypy-extensions==1.2.0
     # via mypy
@@ -124,7 +124,7 @@ numpy==1.26.4
     #   scikit-learn
     #   scipy
     #   tifffile
-opencv-contrib-python==4.11.0.86
+opencv-contrib-python==5.0.0.93
     # via
     #   dss-backend (pyproject.toml)
     #   mediapipe
@@ -169,7 +169,7 @@ pre-commit==4.7.0 ; python_full_version >= '3.11'
     # via dss-backend (pyproject.toml)
 prometheus-client==0.26.0
     # via dss-backend (pyproject.toml)
-protobuf==4.25.9
+protobuf==7.36.2
     # via mediapipe
 pycparser==3.11 ; python_full_version < '3.11' and implementation_name != 'PyPy'
     # via cffi

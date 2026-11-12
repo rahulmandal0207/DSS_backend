@@ -211,7 +211,7 @@ pytz==2026.6
     # via pandas
 pyyaml==6.0.3
     # via pre-commit
-ruff==0.17.3
+ruff==0.17.4
     # via dss-backend (pyproject.toml)
 scikit-image==0.25.2 ; python_full_version < '3.11'
     # via dss-backend (pyproject.toml)
